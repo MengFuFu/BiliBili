@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 直播播放页骨架：顶部返回栏 + 视频占位 + 房间信息 + 底部Tab-->
+<!-- 直播播放页：顶部沉浸式返回栏 + 播放器 + 房间信息 + 底部Tab-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,38 +8,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 顶部返回栏 -->
-    <LinearLayout
-        android:id="@+id/top_bar"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@color/colorPrimary"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp">
-
-        <TextView
-            android:id="@+id/tv_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="返回"
-            android:textColor="@color/white"/>
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/white"
-            android:textSize="16sp"/>
-    </LinearLayout>
-
-    <!-- 播放器容器 -->
+    <!-- 播放器容器：返回栏和底部控制条都叠在这里面 -->
     <FrameLayout
         android:id="@+id/player_container"
         android:layout_width="match_parent"
@@ -130,8 +99,40 @@
                     android:textColor="@color/white"/>
             </LinearLayout>
 
-
         </LinearLayout>
+
+        <!-- 沉浸式返回栏：叠在视频顶部 -->
+        <LinearLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="top"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_live_top_bar"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/tv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="返回"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
     </FrameLayout>
 
     <!-- 房间信息：头像 + 主播名/在线人数 + 关注按钮 -->
