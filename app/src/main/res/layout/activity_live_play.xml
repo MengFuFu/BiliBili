@@ -47,13 +47,12 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/btn_play"
+                <ImageView
+                    android:id="@+id/iv_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
-                    android:text="暂停"
-                    android:textColor="@color/white"/>
+                    android:src="@drawable/ic_tv_stop"/>
 
                 <SeekBar
                     android:id="@+id/seek_bar"
@@ -61,13 +60,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
 
-                <TextView
-                    android:id="@+id/btn_fullscreen"
+                <ImageView
+                    android:id="@+id/iv_fullscreen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
-                    android:text="全屏"
-                    android:textColor="@color/white"/>
+                    android:src="@drawable/ic_portrait_fullscreen"/>
 
             </LinearLayout>
 
@@ -78,11 +76,12 @@
                 android:orientation="horizontal"
                 android:layout_gravity="center_vertical">
 
-                <TextView
+                <ImageView
+                    android:id="@+id/iv_volume"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="音量"
-                    android:textColor="@color/white"/>
+                    android:padding="4dp"
+                    android:src="@drawable/ic_volume_2"/>
 
                 <SeekBar
                     android:id="@+id/volume_seek_bar"
@@ -113,13 +112,12 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp">
 
-            <TextView
-                android:id="@+id/tv_back"
+            <ImageView
+                android:id="@+id/iv_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="返回"
-                android:textColor="@color/white"/>
+                android:src="@drawable/ic_arrow_back"/>
 
             <TextView
                 android:id="@+id/tv_title"

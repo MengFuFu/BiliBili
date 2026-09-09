@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -99,7 +100,7 @@ public class LivePlayActivity extends AppCompatActivity {
         tvOnline.setText("在线 " + online);
 
         //返回按钮
-        findViewById(R.id.tv_back).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -169,13 +170,13 @@ public class LivePlayActivity extends AppCompatActivity {
                 toggleControlBar();
             }
         });
-        findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 togglePlay();
             }
         });
-        findViewById(R.id.btn_fullscreen).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.iv_fullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleFullscreen();
@@ -191,7 +192,8 @@ public class LivePlayActivity extends AppCompatActivity {
 
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
-                ((TextView) findViewById(R.id.btn_play)).setText(isPlaying ? "暂停" : "播放");
+                ImageView ivPlay = findViewById(R.id.iv_play);
+                ivPlay.setImageResource(isPlaying ? R.drawable.ic_tv_stop : R.drawable.ic_tv_play);
             }
         });
 
@@ -253,13 +255,11 @@ public class LivePlayActivity extends AppCompatActivity {
         if(mIsFullscreen) {
             setNormalViewsVisible(false);
             lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            ((TextView) findViewById(R.id.btn_fullscreen)).setText("退出全屏");
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
         else {
             setNormalViewsVisible(true);
             lp.height = mPlayerNormalHeight;
-            ((TextView) findViewById(R.id.btn_fullscreen)).setText("全屏");
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
         playerContainer.setLayoutParams(lp);
