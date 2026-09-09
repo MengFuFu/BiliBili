@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">bilibili</string>
+
+    <string name="home_placeholder">主页占位 --- 第一个Activity</string>
+
+    <!--底部导航四个Tab-->
+    <string name="section_home">首页</string>
+    <string name="section_region">分区</string>
+    <string name="section_dynamic">动态</string>
+    <string name="section_message">消息</string>
+
+
+    <!--首页顶部五个子Tab-->
+    <string name="section_live">直播</string>
+    <string name="section_recommend">推荐</string>
+    <string name="section_bangumi">追番</string>
+    <string name="section_movie">影视</string>
+    <string name="section_special_column">专栏</string>
+
+    <!--首页左上角未登录时显示的用户名-->
+    <string name="home_top_default_nickname">未登录</string>
+
+    <string name="nav_login">点击头像登录</string>
+    <string name="nav_home">首页</string>
+    <string name="nav_vip">我的大会员</string>
+    <string name="nav_vip_point">我的大会员</string>
+    <string name="nav_unicom">免流量服务</string>
+    <string name="nav_download">离线缓存</string>
+    <string name="nav_view_later">稍后再看</string>
+    <string name="nav_star">我的收藏</string>
+    <string name="nav_history">历史记录</string>
+    <string name="nav_people">我的关注</string>
+    <string name="nav_account_balance_wallet">B币钱包</string>
+    <string name="nav_color_lens">主题选择</string>
+    <string name="nav_settings">设置与帮助</string>
+
+    <string name="live_more">更多</string>
+
+    <string name="live_interaction">互动</string>
+    <string name="live_ranking_list">排行</string>
+    <string name="live_fleet">舰队</string>
+    <string name="live_friendly_society">友联社</string>
+</resources>

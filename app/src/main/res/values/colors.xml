@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--主色：主题粉色-->
+    <color name="colorPrimary">#FB7299</color>
+
+    <!--状态栏 / 深色变体-->
+    <color name="colorPrimaryDark">#B85671</color>
+
+    <!-- 强调色：选中、编辑态等-->
+    <color name="colorAccent">#FF4081</color>
+
+    <!--整体背景色-->
+    <color name="bg_main">#F1F1F1</color>
+
+    <!--常用基础色-->
+    <color name="white">#FFFFFFFF</color>
+    <color name="text_main">#212121</color>
+    <color name="text_sub">#999999</color>
+
+    <color name="theme_color_primary">#FB7299</color>
+    <color name="text_gray">#737A80</color>
+</resources>

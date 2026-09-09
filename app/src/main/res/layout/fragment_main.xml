@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  首页布局：
+  CoordinatorLayout
+  ├── AppBarLayout（顶部区域）
+  │   ├── include Toolbar（顶部栏）
+  │   └── TabLayout（直播 / 推荐 / 追番 / 影视 / 专栏）
+  └── ViewPager2（子页面，可左右滑动）
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <!--顶部整体：ToolBar + TabLayout-->
+    <!--AppBarLayout：借助 CoordinatorLayout + Behavior，实现上滑隐藏、折叠、吸顶-->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <!--顶部ToolBar(前面写好的那个布局)-->
+        <include
+            layout="@layout/layout_main_page_toolbar"/>
+
+        <!-- 子Tab栏：固定宽度均分，文字白色，下划线白色-->
+        <!--标签指示器（一排可点击的标签）-->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?attr/colorPrimary"
+            app:tabIndicatorColor="@android:color/white"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@android:color/white"
+            app:tabTextColor="#AAFFFFFF"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!--子页面容器：用ViewPager2，可左右滑动切换-->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

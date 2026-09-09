@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 直播卡片封面高度 -->
+    <dimen name="live_card_image_height">101dp</dimen>
+    <!-- 直播卡片标题区域高度 -->
+    <dimen name="live_item_title_height">49dp</dimen>
+    <!-- 卡片圆角 -->
+    <dimen name="index_card_radius">4dp</dimen>
+    <!-- 通用间距 -->
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_tiny">6dp</dimen>
+    <!-- 封面上底部阴影的高度 -->
+    <dimen name="height_32">32dp</dimen>
+</resources>

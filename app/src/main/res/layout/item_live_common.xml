@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    单个直播房间卡片：
+    封面（占位图 + 底部阴影 + 主播名）
+    + 标题
+    + 底部分区名 / 在线人数
+-->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cv_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/index_card_radius"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--封面区域-->
+        <RelativeLayout
+            android:id="@+id/rl_cover"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/live_card_image_height">
+
+            <!--封面图：先放占位图，后面接真实图片-->
+            <ImageView
+                android:id="@+id/iv_cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/bili_default_image_tv"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_32"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/ucrop_shadow_upside"/>
+
+            <!--主播名，叠在封面右下角-->
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginBottom="@dimen/margin_tiny"
+                android:textColor="@color/white"
+                android:textSize="13sp"/>
+        </RelativeLayout>
+
+        <!--标题：固定两行-->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/live_item_title_height"
+            android:layout_below="@id/rl_cover"
+            android:gravity="center_vertical"
+            android:maxLines="2"
+            android:minLines="2"
+            android:paddingStart="@dimen/margin_small"
+            android:paddingEnd="@dimen/margin_small"
+            android:textColor="@color/text_main"
+            android:textSize="13sp"/>
+
+        <!--底部分区名（左） + 在线人数（右）-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title">
+
+            <TextView
+                android:id="@+id/tv_area_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/tv_online"
+                android:gravity="center_vertical"
+                android:padding="@dimen/margin_small"
+                android:textColor="@color/text_sub"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:id="@+id/tv_online"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:drawableStart="@drawable/ic_live_watch_count"
+                android:drawablePadding="2dp"
+                android:gravity="center_vertical"
+                android:padding="@dimen/margin_small"
+                android:textColor="@color/text_sub"
+                android:textSize="13sp"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
