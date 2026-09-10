@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,15 @@ import com.example.bilibili.widget.bottombar.PlaceholderFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import master.flame.danmaku.controller.DrawHandler;
+import master.flame.danmaku.danmaku.model.BaseDanmaku;
+import master.flame.danmaku.danmaku.model.DanmakuTimer;
+import master.flame.danmaku.danmaku.model.IDanmakus;
+import master.flame.danmaku.danmaku.model.android.DanmakuContext;
+import master.flame.danmaku.danmaku.model.android.Danmakus;
+import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
+import master.flame.danmaku.ui.widget.DanmakuView;
+
 /**
  * 直播播放页骨架：
  * 从上一个页面接收标题、主播名、在线人数并显示
@@ -62,6 +72,10 @@ public class LivePlayActivity extends AppCompatActivity {
     private TextView mBtnSpeed;
     private final float[] mSpeeds = {1.0f, 1.25f, 1.5f, 2.0f};
     private int mSpeedIndex = 0;
+
+    //弹幕功能
+    private DanmakuView mDanmakuView;
+    private DanmakuContext mDanmakuContext;
 
 
     //外部统一用这个方法跳转进来
@@ -109,8 +123,10 @@ public class LivePlayActivity extends AppCompatActivity {
 
         initTabs();
         initAttention();
-        initPlayer();
-        initControls();
+        initPlayer();   //先创建播放器
+        initControls(); //再设置播放器监听
+        initDanmaku();
+
     }
 
     //初始化底部四个Tab，先用占位页
@@ -371,6 +387,71 @@ public class LivePlayActivity extends AppCompatActivity {
                 mBtnSpeed.setText(speed + "x");
             }
         });
+    }
+
+    //初始化弹幕：让DanmakuView准备好，并监听准备完成回调
+    private void initDanmaku() {
+        mDanmakuView = findViewById(R.id.danmaku_view);
+
+        //开启绘制缓存，提升弹幕绘制性能
+        mDanmakuView.enableDanmakuDrawingCache(true);
+
+        //弹幕完成后会回调prepare()，在这里启动弹幕，并先发一条测试弹幕
+        mDanmakuView.setCallback(new DrawHandler.Callback() {
+            @Override
+            public void prepared() {
+                // 切回主线程再操作UI
+                runOnUiThread(() -> {
+                    mDanmakuView.setVisibility(View.VISIBLE);
+                    mDanmakuView.start();
+                    addDanmaku("弹幕测试：欢迎来到直播间");
+                });
+            }
+
+            @Override
+            public void updateTimer(DanmakuTimer timer) {
+            }
+
+            @Override
+            public void danmakuShown(BaseDanmaku danmaku) {
+            }
+
+            @Override
+            public void drawingFinished() {
+            }
+        });
+
+
+        //创建弹幕上下文，用来配置弹幕行为
+        mDanmakuContext = DanmakuContext.create();
+        //允许合并重复弹幕
+        mDanmakuContext.setDuplicateMergingEnabled(true);
+
+        //传入一个空解析器：我们后面是手动添加弹幕，不需要解析文件
+        mDanmakuView.prepare(new BaseDanmakuParser() {
+            @Override
+            protected IDanmakus parse() {
+                return new Danmakus();
+            }
+        }, mDanmakuContext);
+    }
+
+    //手动添加一条从右往左滚动的弹幕
+    private void addDanmaku(String content) {
+        if(mDanmakuView == null || mDanmakuContext == null) {
+            return;
+        }
+        if(!mDanmakuView.isPrepared()) {
+            return;
+        }
+
+        //创建一条从右往左滚动的普通弹幕
+        BaseDanmaku danmaku = mDanmakuContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL);
+        danmaku.text = content;
+        danmaku.textSize = dp2px(14);
+        danmaku.textColor = Color.WHITE;
+        danmaku.setTime(mDanmakuView.getCurrentTime() + 500);
+        mDanmakuView.addDanmaku(danmaku);
     }
 
     @Override
