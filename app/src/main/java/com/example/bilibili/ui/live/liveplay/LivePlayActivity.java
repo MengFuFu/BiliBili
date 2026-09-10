@@ -30,14 +30,19 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.R;
+import com.example.bilibili.model.bean.DanmuMsg;
 import com.example.bilibili.ui.live.liveplay.fragment.LiveDanmuFragment;
 import com.example.bilibili.widget.bottombar.PlaceholderFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.HashMap;
+import java.util.Random;
+
 import master.flame.danmaku.controller.DrawHandler;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
 import master.flame.danmaku.danmaku.model.DanmakuTimer;
+import master.flame.danmaku.danmaku.model.Duration;
 import master.flame.danmaku.danmaku.model.IDanmakus;
 import master.flame.danmaku.danmaku.model.android.DanmakuContext;
 import master.flame.danmaku.danmaku.model.android.Danmakus;
@@ -76,6 +81,11 @@ public class LivePlayActivity extends AppCompatActivity {
     //弹幕功能
     private DanmakuView mDanmakuView;
     private DanmakuContext mDanmakuContext;
+    //定时器字段
+    private Runnable mDanmuRunnable;
+    private int mDanmuCounter = 0;
+    private Random mRandom = new Random(); //实现弹幕随机
+
 
 
     //外部统一用这个方法跳转进来
@@ -393,72 +403,111 @@ public class LivePlayActivity extends AppCompatActivity {
     private void initDanmaku() {
         mDanmakuView = findViewById(R.id.danmaku_view);
 
-        //开启绘制缓存，提升弹幕绘制性能
-        mDanmakuView.enableDanmakuDrawingCache(true);
-
-        //弹幕完成后会回调prepare()，在这里启动弹幕，并先发一条测试弹幕
         mDanmakuView.setCallback(new DrawHandler.Callback() {
             @Override
             public void prepared() {
-                // 切回主线程再操作UI
                 runOnUiThread(() -> {
                     mDanmakuView.setVisibility(View.VISIBLE);
                     mDanmakuView.start();
-                    addDanmaku("弹幕测试：欢迎来到直播间");
+                    startDanmakuLoop();
                 });
             }
 
             @Override
-            public void updateTimer(DanmakuTimer timer) {
-            }
+            public void updateTimer(DanmakuTimer timer) {}
 
             @Override
-            public void danmakuShown(BaseDanmaku danmaku) {
-            }
+            public void danmakuShown(BaseDanmaku danmaku) {}
 
             @Override
-            public void drawingFinished() {
-            }
+            public void drawingFinished() {}
         });
 
-
-        //创建弹幕上下文，用来配置弹幕行为
         mDanmakuContext = DanmakuContext.create();
-        //允许合并重复弹幕
-        mDanmakuContext.setDuplicateMergingEnabled(true);
+        mDanmakuContext.setDuplicateMergingEnabled(false);
+        mDanmakuContext.setDanmakuMargin(dp2px(20));
 
-        //传入一个空解析器：我们后面是手动添加弹幕，不需要解析文件
-        mDanmakuView.prepare(new BaseDanmakuParser() {
-            @Override
-            protected IDanmakus parse() {
-                return new Danmakus();
-            }
-        }, mDanmakuContext);
+        HashMap<Integer, Integer> maxLinesPair = new HashMap<>();
+        maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 4);
+        mDanmakuContext.setMaximumLines(maxLinesPair);
+
+        HashMap<Integer, Boolean> overlappingEnablePair = new HashMap<>();
+        overlappingEnablePair.put(BaseDanmaku.TYPE_SCROLL_RL, true);
+        mDanmakuContext.preventOverlapping(overlappingEnablePair);
+
+        // 重点：等View布局测量完成后再执行prepare
+        mDanmakuView.post(() -> {
+            mDanmakuView.prepare(new BaseDanmakuParser() {
+                @Override
+                protected IDanmakus parse() {
+                    return new Danmakus();
+                }
+            }, mDanmakuContext);
+        });
     }
+
+
+    //每隔800毫秒自动添加一条假弹幕
+    private void startDanmakuLoop() {
+        stopDanmakuLoop();
+        mDanmuRunnable = new Runnable() {
+            @Override
+            public void run() {
+                addDanmaku(DanmuMsg.mock(mDanmuCounter++).getContent());
+                // 随机间隔：600~1400ms 发下一条
+                int delay = 600 + mRandom.nextInt(800);
+                mDanmakuView.postDelayed(this, delay);
+            }
+        };
+        //第一次等300毫秒再发，让弹幕层有时间准备好
+        mDanmakuView.postDelayed(mDanmuRunnable, 300);
+    }
+
+    private void stopDanmakuLoop() {
+        if(mDanmuRunnable != null) {
+            mDanmakuView.removeCallbacks(mDanmuRunnable);
+            mDanmuRunnable = null;
+        }
+    }
+
 
     //手动添加一条从右往左滚动的弹幕
     private void addDanmaku(String content) {
-        if(mDanmakuView == null || mDanmakuContext == null) {
-            return;
-        }
-        if(!mDanmakuView.isPrepared()) {
+        if(mDanmakuView == null || mDanmakuContext == null || !mDanmakuView.isPrepared()) {
             return;
         }
 
-        //创建一条从右往左滚动的普通弹幕
         BaseDanmaku danmaku = mDanmakuContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL);
         danmaku.text = content;
-        danmaku.textSize = dp2px(14);
         danmaku.textColor = Color.WHITE;
+        danmaku.padding = dp2px(8);
+
+        // 1. 随机文字大小：12~16dp
+        danmaku.textSize = dp2px(14);
+
+        // 2. 随机存活时长：8000~15000 毫秒（8~15秒滚完一屏）
+        // 时长越短速度越快，时长越长速度越慢，以此实现弹幕速度错落
+        long randomMs = 8000L + mRandom.nextInt(7000);
+        danmaku.duration = new Duration(randomMs);
+
         danmaku.setTime(mDanmakuView.getCurrentTime() + 500);
         mDanmakuView.addDanmaku(danmaku);
+
     }
+
+
 
     @Override
     protected void onPause() {
         super.onPause();
         if(mPlayer != null) {
             mPlayer.setPlayWhenReady(false); //离开页面时暂停
+        }
+
+        //页面不可见时，停止发弹幕并暂停弹幕绘制
+        stopDanmakuLoop();
+        if(mDanmakuView != null && mDanmakuView.isPrepared()) {
+            mDanmakuView.pause();
         }
     }
 
@@ -468,6 +517,14 @@ public class LivePlayActivity extends AppCompatActivity {
         if(mPlayer != null) {
             mPlayer.setPlayWhenReady(true);
         }
+
+        //页面重新可见时，恢复弹幕绘制和定时发送
+        if(mDanmakuView != null && mDanmakuView.isPrepared()) {
+            if(mDanmakuView.isPaused()) {
+                mDanmakuView.resume();
+            }
+            startDanmakuLoop();
+        }
     }
 
     @Override
@@ -476,6 +533,14 @@ public class LivePlayActivity extends AppCompatActivity {
             mPlayer.release(); //释放播放器
             mPlayer = null;
         }
+
+        //释放弹幕资源，避免内存泄漏
+        stopDanmakuLoop();
+        if(mDanmakuView != null) {
+            mDanmakuView.release();
+            mDanmakuView = null;
+        }
+
         removeHideCallback();
         stopProgressUpdates();
         super.onDestroy();
