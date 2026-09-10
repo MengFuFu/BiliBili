@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.R;
 import com.example.bilibili.ui.live.LiveFragment;
+import com.example.bilibili.ui.recommend.RecommendFragment;
 import com.example.bilibili.widget.bottombar.PlaceholderFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -81,6 +82,9 @@ public class MainFragment extends Fragment {
             //第一个子Tab 是直播列表页，其余仍用占位页
             if(position == 0) {
                 return new LiveFragment();
+            }
+            else if (position == 1) { //第二个子Tab时 推荐
+                return new RecommendFragment();
             }
             return PlaceholderFragment.newInstance(mTitles[position]);
         }
