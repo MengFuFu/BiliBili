@@ -67,6 +67,8 @@ public class MainFragment extends Fragment {
                 tab.setText(mTitles[i]);
             }
         }).attach();
+
+        mViewPager.setCurrentItem(1, false);
     }
 
     //首页子页面的适配器：按位置返回对应的子页面

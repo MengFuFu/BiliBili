@@ -1,5 +1,6 @@
 package com.example.bilibili.ui.recommend;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bilibili.R;
+import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.ui.recommend.adapter.RecommendAdapter;
 
@@ -20,7 +22,7 @@ import java.util.List;
 
 /**
  * 首页 - 推荐页
- * 用两列网格展示推荐视频卡片
+ * 顶部轮播 Banner + 两列视频卡片
  */
 public class RecommendFragment extends Fragment {
 
@@ -39,12 +41,25 @@ public class RecommendFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         mRefreshLayout = view.findViewById(R.id.layout_refresh);
 
-        //两列网格
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-
         //假数据
+        List<Banner> banners = Banner.createMockData();
         List<RecommendItem> items = RecommendItem.createMockData();
-        RecommendAdapter adapter = new RecommendAdapter(items);
+
+        //两列网格
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == 0 ? 2 : 1;
+            }
+        });
+        recyclerView.setLayoutManager(layoutManager);
+
+        //统一的网格间距
+        int spacing = getResources().getDimensionPixelSize(R.dimen.margin_small);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing));
+
+        RecommendAdapter adapter = new RecommendAdapter(banners, items);
         recyclerView.setAdapter(adapter);
 
         //下拉刷新
@@ -55,5 +70,36 @@ public class RecommendFragment extends Fragment {
                 mRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    // 网格间距处理：Banner 整行留边距，视频卡片左右对称
+    static class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+
+        private final int spacing;
+
+        GridSpacingItemDecoration(int spacing) {
+            this.spacing = spacing;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view);
+
+            if (position == 0) {
+                // Banner 占满整行
+                outRect.left = spacing;
+                outRect.right = spacing;
+                outRect.top = spacing;
+                outRect.bottom = spacing;
+                return;
+            }
+
+            // 视频卡片从 position 1 开始，奇偶交替决定左右列
+            int column = (position - 1) % 2;
+            outRect.left = spacing - column * spacing / 2;
+            outRect.right = (column + 1) * spacing / 2;
+            outRect.top = 0;
+            outRect.bottom = spacing;
+        }
     }
 }
