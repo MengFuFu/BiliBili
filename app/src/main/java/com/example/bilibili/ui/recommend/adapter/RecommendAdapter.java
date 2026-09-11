@@ -17,6 +17,7 @@ import com.example.bilibili.R;
 import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.ui.live.adapter.BannerAdapter;
+import com.example.bilibili.ui.video.VideoPlayActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +82,24 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return 1 + mItems.size();
     }
 
+    //追加数据(加载更多用)
+    public void addItems(List<RecommendItem> newItems) {
+        if(newItems == null || newItems.isEmpty()) {
+            return;
+        }
+        int start = mItems.size();
+        mItems.addAll(newItems);
+        //注意：position 0 被banner占了，视频卡片的列表位置 = 1 + 下标
+        notifyItemRangeInserted(1 + start, newItems.size());
+    }
+
+    //清空并重新填充（下拉刷新用）
+    public void resetItems(List<RecommendItem> newItems) {
+        mItems.clear();
+        mItems.addAll(newItems);
+        notifyDataSetChanged();
+    }
+
     //填充视频卡片
     private void bindItem(RecommendViewHolder holder, RecommendItem item) {
         holder.tvTitle.setText(item.getTitle());
@@ -88,6 +107,17 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         holder.tvPlay.setText(item.getPlay());
         holder.tvDuration.setText(item.getDuration());
         holder.ivCover.setImageResource(R.drawable.bili_default_image_tv);
+
+        //点击整张卡片，跳转到视频播放页
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                VideoPlayActivity.startActivity(v.getContext(),
+                        item.getTitle(),
+                        item.getUpName(),
+                        item.getPlay());
+            }
+        });
     }
 
     // ==================== Banner ViewHolder（含自动轮播） ====================

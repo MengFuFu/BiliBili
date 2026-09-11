@@ -53,16 +53,24 @@ public class RecommendItem {
     }
 
     public static List<RecommendItem> createMockData() {
+        return createMockData(1);
+    }
+
+    //page表示第几页，用来生成不同标题的假数据，以便看出“加载更多”生效
+    public static List<RecommendItem> createMockData(int page) {
         List<RecommendItem> list = new ArrayList<>();
-        String[] ups = {"刘嘉龙", "古健豪"};
+        String[] ups = {"小卤蛋", "肥嘟嘟", "胖猫", "奶龙"};
 
         for (int i = 0; i < 20; i++) {
-            String title = "这是第" + (i + 1) + "个推荐视频的标题";
-            String up = ups[i % ups.length];
-            String play = (i + 1) * 8 + "万";
+            //全局序号：第一页是0~19，第二页是20~39.。。
+            int index = (page - 1) * 20 + i;
 
-            int minutes = 5 + (i % 30);
-            int seconds = (i * 7) % 60;
+            String title = "这是第" + (index + 1) + "个推荐视频的标题";
+            String up = ups[index % ups.length];
+            String play = (index + 1) * 8 + "万";
+
+            int minutes = 5 + (index % 30);
+            int seconds = (index % 7) % 60;
             String duration = String.format("%02d:%02d", minutes, seconds);
 
             list.add(new RecommendItem(title, up, play, duration));
