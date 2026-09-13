@@ -17,6 +17,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.R;
+import com.example.bilibili.ui.bangumi.BangumiFragment;
 import com.example.bilibili.ui.live.LiveFragment;
 import com.example.bilibili.ui.recommend.RecommendFragment;
 import com.example.bilibili.widget.bottombar.PlaceholderFragment;
@@ -88,6 +89,10 @@ public class MainFragment extends Fragment {
             else if (position == 1) { //第二个子Tab时 推荐
                 return new RecommendFragment();
             }
+            else if(position == 2) {
+                return new BangumiFragment();
+            }
+
             return PlaceholderFragment.newInstance(mTitles[position]);
         }
 

@@ -28,7 +28,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.Comment;
 import com.example.bilibili.model.bean.DanmuMsg;
+import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.ui.video.adapter.CommentAdapter;
+import com.example.bilibili.ui.video.adapter.RelateAdapter;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -497,6 +499,11 @@ public class VideoPlayActivity extends AppCompatActivity {
         RecyclerView rvComment = findViewById(R.id.rv_comment);
         rvComment.setLayoutManager(new LinearLayoutManager(this));
         rvComment.setAdapter(new CommentAdapter(Comment.createMockData()));
+
+        //相关推荐列表，用第2页假数据
+        RecyclerView rvRelated = findViewById(R.id.rv_related);
+        rvRelated.setLayoutManager(new LinearLayoutManager(this));
+        rvRelated.setAdapter(new RelateAdapter(RecommendItem.createMockData()));
     }
 
     //自动更新进度条
