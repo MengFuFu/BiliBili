@@ -22,9 +22,13 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bilibili.R;
+import com.example.bilibili.model.bean.Comment;
 import com.example.bilibili.model.bean.DanmuMsg;
+import com.example.bilibili.ui.video.adapter.CommentAdapter;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -84,6 +88,9 @@ public class VideoPlayActivity extends AppCompatActivity {
     private int mLikes = 0;
     private int mCoins = 0;
     private int mFavorites = 0;
+
+    //简介是否已展开
+    private boolean mIsDescExpanded = false;
 
     //外部用这个方法跳转进来
     public static void startActivity(Context context, String title, String upName, String play) {
@@ -474,6 +481,22 @@ public class VideoPlayActivity extends AppCompatActivity {
                 btn.setText("收藏 " + (++mFavorites));
             }
         });
+
+        //视频简介：点击在“3行”和“完整"之间切换
+        TextView tvDesc = findViewById(R.id.tv_desc);
+        tvDesc.setText("这是视频简介，用来占位。点击这一行可以展开完整内容，再点一下可以收起。");
+        tvDesc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mIsDescExpanded = !mIsDescExpanded;
+                tvDesc.setMaxLines(mIsDescExpanded ? Integer.MAX_VALUE : 3);
+            }
+        });
+
+        //评论列表
+        RecyclerView rvComment = findViewById(R.id.rv_comment);
+        rvComment.setLayoutManager(new LinearLayoutManager(this));
+        rvComment.setAdapter(new CommentAdapter(Comment.createMockData()));
     }
 
     //自动更新进度条
