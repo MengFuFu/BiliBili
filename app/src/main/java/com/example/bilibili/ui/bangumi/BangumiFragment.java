@@ -14,7 +14,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.BangumiItem;
+import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.ui.bangumi.adapter.BangumiAdapter;
+
+import java.util.List;
 
 /**
  * 首页 - 番剧页
@@ -34,9 +37,13 @@ public class BangumiFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         SwipeRefreshLayout refreshLayout = view.findViewById(R.id.layout_refresh);
 
+        // 数据Banner + 番剧卡片
+        List<Banner> banners = Banner.createMockData();
+        List<BangumiItem> items = BangumiItem.createMockData();
+
         //单列列表
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new BangumiAdapter(BangumiItem.createMockData()));
+        recyclerView.setAdapter(new BangumiAdapter(banners, items));
 
         //下拉刷新
         refreshLayout.setColorSchemeResources(R.color.theme_color_primary);
