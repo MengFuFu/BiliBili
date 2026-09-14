@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 单集条目：一个圆角卡片，显示第x话 -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="72dp"
+    android:layout_height="36dp"
+    android:layout_marginEnd="8dp"
+    app:cardBackgroundColor="@color/bg_main"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="0dp">
+
+    <TextView
+        android:id="@+id/tv_episode"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/text_main"
+        android:textSize="13sp"/>
+
+</androidx.cardview.widget.CardView>

@@ -5,9 +5,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +40,21 @@ public class RegionFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         SwipeRefreshLayout refreshLayout = view.findViewById(R.id.layout_refresh);
+
+        //设置工具栏标题为“分区”
+        TextView tvTitle = view.findViewById(R.id.tv_title);
+        tvTitle.setText(R.string.section_region);
+
+        //左侧三横线按钮：打开侧边抽屉
+        view.findViewById(R.id.ll_top_menu_nav).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DrawerLayout drawer = requireActivity().findViewById(R.id.main_drawer_layout);
+                if(drawer != null) {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+            }
+        });
 
         //数据
         final List<RegionItem> partitions = RegionItem.createMockData();

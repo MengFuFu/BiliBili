@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.BangumiItem;
 import com.example.bilibili.model.bean.Banner;
+import com.example.bilibili.ui.bangumi.BangumiDetailActivity;
 import com.example.bilibili.ui.live.adapter.BannerAdapter;
 
 import java.util.ArrayList;
@@ -106,6 +107,14 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 else {
                     btn.setText("追番");
                 }
+            }
+        });
+
+        //点整张卡片跳转到番剧详细页
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BangumiDetailActivity.startActivity(v.getContext(), item.getTitle());
             }
         });
     }
