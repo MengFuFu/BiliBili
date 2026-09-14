@@ -19,4 +19,15 @@
 
     <color name="theme_color_primary">#FB7299</color>
     <color name="text_gray">#737A80</color>
+
+    <color name="et_search_bg_live">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="theme_color_pink">#FF80A0</color>
+    <color name="gray">#FF999999</color>
+    <color name="gray_light">#FFE5E5E5</color>
+    <color name="_bkgd__gray">#FFAAAAAA</color>
+    <color name="theme_color_dividing_line_tm">#FFDDDDDD</color>
+    <color name="gray_dark_alpha26">#42000000</color>
+    <color name="_bkgd__gray_light">#FFF1F1F1</color>
+    <color name="black_alpha50">#80000000</color>
 </resources>

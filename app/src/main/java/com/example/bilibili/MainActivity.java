@@ -20,6 +20,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.ui.main.MainFragment;
+import com.example.bilibili.ui.region.RegionFragment;
 import com.example.bilibili.widget.bottombar.BottomBar;
 import com.example.bilibili.widget.bottombar.CustomTabEntity;
 import com.example.bilibili.widget.bottombar.PlaceholderFragment;
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     //创建四个一级页面，全部add到main_container，先只显示第一个
     private void initFragments() {
         mFragments[FIRST] = new MainFragment();
-        mFragments[SECOND] = PlaceholderFragment.newInstance(getString(R.string.section_region));
+        mFragments[SECOND] = new RegionFragment();
         mFragments[THIRD] = PlaceholderFragment.newInstance(getString(R.string.section_dynamic));
         mFragments[FOURTH] = PlaceholderFragment.newInstance(getString(R.string.section_message));
 

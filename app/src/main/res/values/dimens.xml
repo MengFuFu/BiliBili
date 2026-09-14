@@ -11,4 +11,7 @@
     <dimen name="margin_tiny">6dp</dimen>
     <!-- 封面上底部阴影的高度 -->
     <dimen name="height_32">32dp</dimen>
+
+    <dimen name="padding_6">6dp</dimen>
+    <dimen name="width_4">4dp</dimen>
 </resources>
