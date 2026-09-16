@@ -3,6 +3,7 @@ package com.example.bilibili.data.repository;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.example.bilibili.data.api.ApiClient;
 import com.example.bilibili.data.api.BiliApiService;
 import com.example.bilibili.data.api.PopularResponse;
 import com.example.bilibili.model.bean.RecommendItem;
@@ -32,27 +33,7 @@ public class RecommendRepository {
     private final BiliApiService mApi;
 
     public RecommendRepository() {
-        //自定义OkHttpClient：加User-Agent，避免接口风控
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(chain -> {
-                    Request request = chain.request().newBuilder()
-                            .addHeader("User-Agent",
-                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                                            "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                                            "Chrome/120.0.0.0 Safari/537.36")
-                            .build();
-                    return chain.proceed(request);
-                })
-                .build();
-
-        //创建Retrofit实例
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.bilibili.com/")
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        mApi = retrofit.create(BiliApiService.class);
+        mApi = ApiClient.getApi();
     }
 
     //加载某一页推荐数据

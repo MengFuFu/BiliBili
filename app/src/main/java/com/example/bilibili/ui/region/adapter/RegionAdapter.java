@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.model.bean.RegionItem;
@@ -67,6 +68,13 @@ public class RegionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return mPartitions.size() + mVideos.size();
     }
 
+    //刷新视频列表
+    public void resetVideos(List<RecommendItem> videos) {
+        mVideos.clear();
+        mVideos.addAll(videos);
+        notifyDataSetChanged();
+    }
+
     private void bindPartition(PartitionViewHolder holder, RegionItem item) {
         holder.ivIcon.setImageResource(item.getIcon());
         holder.tvName.setText(item.getName());
@@ -77,7 +85,12 @@ public class RegionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.tvUpName.setText(item.getUpName());
         holder.tvPlay.setText(item.getPlay());
         holder.tvDuration.setText(item.getDuration());
-        holder.ivCover.setImageResource(R.drawable.bili_default_image_tv);
+
+        // 用 Glide 加载封面，加载失败或为空时显示占位图
+        Glide.with(holder.ivCover.getContext())
+                .load(item.getCover())
+                .placeholder(R.drawable.bili_default_image_tv)
+                .into(holder.ivCover);
 
         //点击视频卡片跳转播放页
         holder.itemView.setOnClickListener(new View.OnClickListener() {

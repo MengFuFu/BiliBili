@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,14 +22,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.model.bean.RegionItem;
+import com.example.bilibili.ui.recommend.RecommendViewModel;
 import com.example.bilibili.ui.region.adapter.RegionAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 分区页：分区入口 + 两列视频卡片
  */
 public class RegionFragment extends Fragment {
+
+    private RegionAdapter mAdapter;
 
     @Nullable
     @Override
@@ -58,7 +65,9 @@ public class RegionFragment extends Fragment {
 
         //数据
         final List<RegionItem> partitions = RegionItem.createMockData();
-        List<RecommendItem> videos = RecommendItem.createMockData(3);
+
+        //拿ViewModel
+        RegionViewModel viewModel = new ViewModelProvider(this).get(RegionViewModel.class);
 
         // 两列网格：分区入口占满两列，视频卡片各占一列
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
@@ -74,16 +83,35 @@ public class RegionFragment extends Fragment {
         int spacing = getResources().getDimensionPixelSize(R.dimen.margin_small);
         recyclerView.addItemDecoration(new RegionSpacingItemDecoration(spacing, partitions.size()));
 
-        recyclerView.setAdapter(new RegionAdapter(partitions, videos));
+        mAdapter = new RegionAdapter(partitions, new ArrayList<RecommendItem>());
+        recyclerView.setAdapter(mAdapter);
 
-        // 下拉刷新先简单收尾
+        //观察视频列表，变化时刷新
+        viewModel.getVideos().observe(getViewLifecycleOwner(), new Observer<List<RecommendItem>>() {
+            @Override
+            public void onChanged(List<RecommendItem> items) {
+                mAdapter.resetVideos(items);
+            }
+        });
+        //观察刷新状态，控制下拉转圈
+        viewModel.getRefreshing().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                refreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
+        // 下拉刷新
         refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshLayout.setRefreshing(false);
+                viewModel.refresh();
             }
         });
+
+        //初次刷新
+        viewModel.refresh();
     }
 
     // 网格间距：分区入口整行留边距，视频卡片左右对称

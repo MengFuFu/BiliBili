@@ -21,4 +21,8 @@ public interface BiliApiService {
                                      @Query("season_type") int seasonType,
                                      @Query("pagesize") int pageSize,
                                      @Query("page") int page);
+
+    //分区排行榜：rid是分区id，day是榜单天数
+    @GET("x/web-interface/ranking/region")
+    Call<RegionRankingResponse> getRegionRanking(@Query("rid") int rid, @Query("day") int day);
 }
