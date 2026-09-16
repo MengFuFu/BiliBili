@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.RecommendItem;
@@ -106,7 +107,12 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         holder.tvUpName.setText(item.getUpName());
         holder.tvPlay.setText(item.getPlay());
         holder.tvDuration.setText(item.getDuration());
-        holder.ivCover.setImageResource(R.drawable.bili_default_image_tv);
+        //用Glide加载网络封面
+        Glide.with(holder.ivCover.getContext())
+                .load(item.getCover())
+                .placeholder(R.drawable.bili_default_image_tv)
+                .centerCrop() // 裁剪，铺满ImageView，超出部分切掉，B站封面常用
+                .into(holder.ivCover);
 
         //点击整张卡片，跳转到视频播放页
         holder.itemView.setOnClickListener(new View.OnClickListener() {

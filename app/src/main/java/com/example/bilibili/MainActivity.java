@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.ui.dynamic.DynamicFragment;
 import com.example.bilibili.ui.main.MainFragment;
+import com.example.bilibili.ui.message.MessageFragment;
 import com.example.bilibili.ui.region.RegionFragment;
 import com.example.bilibili.widget.bottombar.BottomBar;
 import com.example.bilibili.widget.bottombar.CustomTabEntity;
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         mFragments[FIRST] = new MainFragment();
         mFragments[SECOND] = new RegionFragment();
         mFragments[THIRD] = new DynamicFragment();
-        mFragments[FOURTH] = PlaceholderFragment.newInstance(getString(R.string.section_message));
+        mFragments[FOURTH] = new MessageFragment();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         for (int i = 0; i < mFragments.length; i++) {

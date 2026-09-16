@@ -12,6 +12,15 @@ public class RecommendItem {
     private String upName; //UP主名字
     private String play; //播放量文字
     private String duration; //视频时长
+    private String cover; //封面图URL
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
 
     public RecommendItem(String title, String upName, String play, String duration) {
         this.title = title;

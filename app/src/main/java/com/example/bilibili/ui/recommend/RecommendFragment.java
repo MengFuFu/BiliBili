@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -18,6 +20,7 @@ import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.RecommendItem;
 import com.example.bilibili.ui.recommend.adapter.RecommendAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,8 +31,7 @@ public class RecommendFragment extends Fragment {
 
     private SwipeRefreshLayout mRefreshLayout;
     private RecommendAdapter mAdapter;
-    private int mPage = 1; //当前加载到第几页
-    private boolean mLoadingMore = false; //是否正在加载更多
+    private RecommendViewModel mViewModel;
 
     @Nullable
     @Override
@@ -44,9 +46,11 @@ public class RecommendFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         mRefreshLayout = view.findViewById(R.id.layout_refresh);
 
-        //初始只加载第一页
+        //拿到ViewModel
+        mViewModel = new ViewModelProvider(this).get(RecommendViewModel.class);
+
+        //Banner是静态数据，这里创建一次即可
         List<Banner> banners = Banner.createMockData();
-        List<RecommendItem> items = RecommendItem.createMockData(1);
 
         //两列网格
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
@@ -62,7 +66,7 @@ public class RecommendFragment extends Fragment {
         int spacing = getResources().getDimensionPixelSize(R.dimen.margin_small);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing));
 
-        mAdapter = new RecommendAdapter(banners, items);
+        mAdapter = new RecommendAdapter(banners, new ArrayList<>());
         recyclerView.setAdapter(mAdapter);
 
         //滚动监听：快滚到底部时触发加载更多
@@ -76,47 +80,38 @@ public class RecommendFragment extends Fragment {
                 int lastVisible = manager.findLastVisibleItemPosition();
                 int total = mAdapter.getItemCount();
                 //还差4个条目就到底时，开始加载下一页
-                if(lastVisible + 4 >= total && !mLoadingMore) {
-                    loadMore();
+                if(lastVisible + 4 >= total) {
+                    mViewModel.loadMore();
                 }
             }
         });
 
         //下拉刷新
+        //观察列表数据，变化时刷新列表
+        mViewModel.getItems().observe(getViewLifecycleOwner(), new Observer<List<RecommendItem>>() {
+            @Override
+            public void onChanged(List<RecommendItem> recommendItems) {
+                mAdapter.resetItems(recommendItems);
+            }
+        });
+        //观察刷新状态，控制下拉转圈
+        mViewModel.getRefreshing().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                mRefreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                mViewModel.refresh();
             }
         });
-    }
 
-    //下拉刷新：回到第一页，重新生成数据
-    private void refresh() {
-        mPage = 1;
-        //用延迟模拟网络请求
-        mRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.resetItems(RecommendItem.createMockData(1));
-                mRefreshLayout.setRefreshing(false);
-            }
-        }, 600);
-    }
-
-    //加载更多：追加下一页假数据
-    private void loadMore() {
-        mLoadingMore = true;
-        mPage++;
-        //用延迟模拟网络请求
-        mRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.addItems(RecommendItem.createMockData(mPage));
-                mLoadingMore = false;
-            }
-        }, 600);
+        //初次加载
+        mViewModel.refresh();
     }
 
     // 网格间距处理：Banner 整行留边距，视频卡片左右对称
