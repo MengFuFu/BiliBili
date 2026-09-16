@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bilibili.R;
+import com.example.bilibili.data.db.AppDatabase;
+import com.example.bilibili.data.db.FollowEntity;
 import com.example.bilibili.ui.bangumi.adapter.EpisodeAdapter;
 
 /**
@@ -55,16 +57,53 @@ public class BangumiDetailActivity extends AppCompatActivity {
         tvDesc.setText("这是番剧简介，用来占位。这里会介绍番剧的剧情、声优、制作团队等信息。");
 
         //追番按钮
+        final TextView btnFollow = findViewById(R.id.btn_follow);
 
-        // 追番按钮：在“追番”和“已追番”之间切换
-        findViewById(R.id.btn_follow).setOnClickListener(new View.OnClickListener() {
+        //进入页面先查一下数据库，看这个番剧是否追过
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final FollowEntity entity = AppDatabase.getInstance(BangumiDetailActivity.this)
+                        .followDao()
+                        .findByTitle(title);
+                //回到主线程更新文字按钮
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(entity != null) {
+                            btnFollow.setText("已追番");
+                        }
+                    }
+                });
+            }
+        }).start();
+
+        //点击追番按钮：写入或删除数据库记录
+        btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView btn = (TextView) v;
-                if ("追番".contentEquals(btn.getText())) {
-                    btn.setText("已追番");
-                } else {
-                    btn.setText("追番");
+                if("追番".contentEquals(btnFollow.getText())) {
+                    btnFollow.setText("已追番");
+                    //数据库操作 必须在子线程执行
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AppDatabase.getInstance(BangumiDetailActivity.this)
+                                    .followDao()
+                                    .insert(new FollowEntity(title));
+                        }
+                    }).start();
+                }
+                else {
+                    btnFollow.setText("追番");
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AppDatabase.getInstance(BangumiDetailActivity.this)
+                                    .followDao()
+                                    .delete(new FollowEntity(title));
+                        }
+                    }).start();
                 }
             }
         });
