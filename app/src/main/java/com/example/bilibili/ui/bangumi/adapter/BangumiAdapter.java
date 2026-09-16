@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.BangumiItem;
 import com.example.bilibili.model.bean.Banner;
@@ -91,10 +92,20 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return 2 + mItems.size();
     }
 
+    //清空并重新填充数据（配合LiveData使用）
+    public void resetItems(List<BangumiItem> items) {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
+    }
+
     private void bindItem(BangumiViewHolder holder, BangumiItem item) {
         holder.tvTitle.setText(item.getTitle());
         holder.tvDesc.setText(item.getDesc());
-        holder.ivCover.setImageResource(R.drawable.bili_default_image_tv);
+        Glide.with(holder.ivCover.getContext())
+                .load(item.getCover())
+                        .placeholder(R.drawable.bili_default_image_tv)
+                                .into(holder.ivCover);
 
         //追番按钮
         holder.btnFollow.setOnClickListener(new View.OnClickListener() {

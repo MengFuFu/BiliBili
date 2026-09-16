@@ -10,6 +10,7 @@ public class BangumiItem {
 
     private String title; //番剧名
     private String desc; //描述：比如“更新至。。。”
+    private String cover; //封面图URL
 
     public BangumiItem(String title, String desc) {
         this.title = title;
@@ -18,6 +19,14 @@ public class BangumiItem {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 
     public void setTitle(String title) {

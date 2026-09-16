@@ -2,6 +2,7 @@ package com.example.bilibili.ui.recommend;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.MutableBoolean;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -22,7 +23,8 @@ public class RecommendViewModel extends ViewModel {
     private final MutableLiveData<List<RecommendItem>> mItems = new MutableLiveData<>();
     //是否正在刷新
     private final MutableLiveData<Boolean> mRefreshing = new MutableLiveData<>(false);
-
+    //加载失败状态
+    private final MutableLiveData<Boolean> mError = new MutableLiveData<>(false);
     private final RecommendRepository mRepository = new RecommendRepository();
 
     private int mPage = 1; //当前页
@@ -36,6 +38,15 @@ public class RecommendViewModel extends ViewModel {
         return mRefreshing;
     }
 
+    public LiveData<Boolean> getError() {
+        return mError;
+    }
+
+    //错误被消费后重置，避免重复提示
+    public void consumeError() {
+        mError.setValue(false);
+    }
+
     //刷新：回到第一页重新加载
     public void refresh() {
         mPage = 1;
@@ -45,6 +56,12 @@ public class RecommendViewModel extends ViewModel {
             public void onResult(List<RecommendItem> items) {
                 mItems.setValue(items);
                 mRefreshing.setValue(false);
+            }
+
+            @Override
+            public void onError() {
+                mRefreshing.setValue(false);
+                mError.setValue(true);
             }
         });
     }
@@ -66,6 +83,12 @@ public class RecommendViewModel extends ViewModel {
                 current.addAll(items);
                 mItems.setValue(current);
                 mLoadingMore = false;
+            }
+
+            @Override
+            public void onError() {
+                mLoadingMore = false;
+                mError.setValue(true);
             }
         });
     }

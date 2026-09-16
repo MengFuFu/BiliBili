@@ -26,6 +26,7 @@ public class RecommendRepository {
     //加载结果回调
     public interface LoadCallback {
         void onResult(List<RecommendItem> items);
+        void onError(); //加载失败
     }
 
     private final BiliApiService mApi;
@@ -66,8 +67,7 @@ public class RecommendRepository {
 
             @Override
             public void onFailure(Call<PopularResponse> call, Throwable t) {
-                //请求失败返回空列表
-                callback.onResult(new ArrayList<RecommendItem>());
+                callback.onError(); //通知加载失败
             }
         });
     }

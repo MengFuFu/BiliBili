@@ -1,5 +1,6 @@
 package com.example.bilibili.data.db;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -10,6 +11,7 @@ import androidx.room.PrimaryKey;
 public class FollowEntity {
 
     @PrimaryKey
+    @NonNull
     public String title; //番剧名为主键
 
     public FollowEntity(String title) {

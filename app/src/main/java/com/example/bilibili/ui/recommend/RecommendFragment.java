@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -99,6 +100,16 @@ public class RecommendFragment extends Fragment {
             @Override
             public void onChanged(Boolean aBoolean) {
                 mRefreshLayout.setRefreshing(aBoolean);
+            }
+        });
+        //观察错误状态，加载失败时弹提示
+        mViewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请检查网络后重试", Toast.LENGTH_SHORT).show();
+                    mViewModel.consumeError(); //提示完重置
+                }
             }
         });
 
