@@ -19,11 +19,12 @@ public class BangumiResponse {
     }
 
     public static class Season {
-        public String title; //番剧名
+        public String title; //番剧名/电影名
         public String cover; //封面URL
         public String order; // 排序文本
+        public String score; //评分
 
         @SerializedName("index_show")
-        public String indexShow; //更新进度
+        public String indexShow; //更新进度  / 上映日期
     }
 }

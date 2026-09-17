@@ -39,6 +39,7 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public RecommendAdapter(List<Banner> mBanners, List<RecommendItem> mItems) {
         this.mBanners = mBanners;
         this.mItems = mItems;
+        setHasStableIds(true); //开启稳定ID
     }
 
     @Override

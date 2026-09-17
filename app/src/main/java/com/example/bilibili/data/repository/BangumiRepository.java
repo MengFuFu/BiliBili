@@ -20,7 +20,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * 番剧数据仓库
+ * 番剧/影视数据仓库
+ * 通过seasonType区分：1 = 番剧，2 = 电影
  */
 public class BangumiRepository {
 
@@ -34,9 +35,9 @@ public class BangumiRepository {
         mApi = ApiClient.getApi();
     }
 
-    //加载某一页的番剧数据
-    public void loadBangumi(int page, final LoadCallback callback) {
-        mApi.getBangumi(1, 1, 20, page).enqueue(new Callback<BangumiResponse>() {
+    //加载某类PGC内容的某一页
+    public void loadBangumi(int seasonType, int page, final LoadCallback callback) {
+        mApi.getBangumi(1, seasonType, 20, page).enqueue(new Callback<BangumiResponse>() {
             @Override
             public void onResponse(Call<BangumiResponse> call, Response<BangumiResponse> response) {
                 callback.onResult(mapToBangumiItems(response.body()));
@@ -59,8 +60,11 @@ public class BangumiRepository {
         for(BangumiResponse.Season season : response.data.list) {
             String title = season.title;
             String progress = season.indexShow != null ? season.indexShow : "";
-            String order = season.order != null ? season.order : "";
-            String desc = progress + " · " + order;
+
+            //番剧用order（如“9.9分”）；电影order是空字符串，改用score
+            String rating = (season.order != null && !season.order.isEmpty() ? season.order : (season.score != null ? season.score + "分" : "" ));
+            //没有评分就不拼"·"
+            String desc = rating.isEmpty() ? progress : progress + " · " + rating;
 
             BangumiItem item = new BangumiItem(title, desc);
             item.setCover(season.cover);

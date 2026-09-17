@@ -16,6 +16,7 @@ public class RegionViewModel extends ViewModel {
 
     private final MutableLiveData<List<RecommendItem>> mVideos = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mRefreshing = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> mError = new MutableLiveData<>(false);
     private final RegionRepository mRepository = new RegionRepository();
 
     public LiveData<List<RecommendItem>> getVideos() {
@@ -26,14 +27,29 @@ public class RegionViewModel extends ViewModel {
         return mRefreshing;
     }
 
-    //刷新
-    public void refresh() {
+    public LiveData<Boolean> getError() {
+        return mError;
+    }
+
+    //提示完错误消息就重置，避免重复弹
+    public void consumeError() {
+        mError.setValue(false);
+    }
+
+    //刷新：加载指定分区的排行榜
+    public void refresh(final int rid) {
         mRefreshing.setValue(true);
-        mRepository.loadVideos(new RegionRepository.LoadCallback() {
+        mRepository.loadVideos(rid, new RegionRepository.LoadCallback() {
             @Override
             public void onResult(List<RecommendItem> items) {
                 mVideos.setValue(items);
                 mRefreshing.setValue(false);
+            }
+
+            @Override
+            public void onError() {
+                mRefreshing.setValue(false);
+                mError.setValue(true);
             }
         });
     }

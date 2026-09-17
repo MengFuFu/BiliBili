@@ -26,9 +26,9 @@ public class BangumiViewModel extends ViewModel {
         return mRefreshing;
     }
 
-    public void refresh() {
+    public void refresh(final int seasonType) {
         mRefreshing.setValue(true);
-        mRepository.loadBangumi(1, new BangumiRepository.LoadCallback() {
+        mRepository.loadBangumi(seasonType, 1, new BangumiRepository.LoadCallback() {
             @Override
             public void onResult(List<BangumiItem> items) {
                 mItems.setValue(items);

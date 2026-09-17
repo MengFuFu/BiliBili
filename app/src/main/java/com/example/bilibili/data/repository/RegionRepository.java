@@ -30,6 +30,7 @@ public class RegionRepository {
 
     public interface LoadCallback {
         void onResult(List<RecommendItem> items);
+        void onError();
     }
 
     private final BiliApiService mApi;
@@ -38,14 +39,19 @@ public class RegionRepository {
         mApi = ApiClient.getApi();
     }
 
-    public void loadVideos(final LoadCallback callback) {
-        // rid=4 是游戏区，day=3 是三日榜
-        mApi.getRegionRanking(4, 3).enqueue(new Callback<RegionRankingResponse>() {
+    public void loadVideos(int rid, final LoadCallback callback) {
+        // rid是分区id，day=3 是三日榜
+        mApi.getRegionRanking(rid, 3).enqueue(new Callback<RegionRankingResponse>() {
             @Override
             public void onResponse(Call<RegionRankingResponse> call, Response<RegionRankingResponse> response) {
-                // 打印 HTTP 状态码和业务 code，方便排查
-                Log.d(TAG, "httpCode=" + response.code()
-                        + ", bizCode=" + (response.body() != null ? response.body().code : "null"));
+                RegionRankingResponse body = response.body();
+
+                if(body == null || body.code != 0) {
+                    Log.e(TAG, "biz error，code=" + (body != null ? body.code : "null"));
+                    callback.onError();
+                    return;
+                }
+
                 callback.onResult(mapToRecommendItems(response.body()));
             }
 
@@ -53,7 +59,7 @@ public class RegionRepository {
             public void onFailure(Call<RegionRankingResponse> call, Throwable t) {
                 // 失败一定要打印异常，否则日志里什么都看不到
                 Log.e(TAG, "loadVideos failed", t);
-                callback.onResult(new ArrayList<RecommendItem>());
+                callback.onError();
             }
         });
     }

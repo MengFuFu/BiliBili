@@ -23,11 +23,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 首页 - 番剧页
+ * 首页 - 番剧页 / 影视页
+ * season_type 1:番剧 2：电影
  */
 public class BangumiFragment extends Fragment {
 
+    private static final String ARG_SEASON_TYPE = "season_type";
+
     private BangumiAdapter mAdapter;
+    private int mSeasonType = 1; //默认番剧
+
+    //工厂方法：创建指定类型的页面
+    public static BangumiFragment newInstance(int seasonType) {
+        BangumiFragment fragment = new BangumiFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_SEASON_TYPE, seasonType);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -38,6 +51,12 @@ public class BangumiFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //从arguments读取season_type
+        Bundle args = getArguments();
+        if(args != null) {
+            mSeasonType = args.getInt(ARG_SEASON_TYPE, 1);
+        }
 
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         SwipeRefreshLayout refreshLayout = view.findViewById(R.id.layout_refresh);
@@ -74,11 +93,11 @@ public class BangumiFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                viewModel.refresh();
+                viewModel.refresh(mSeasonType);
             }
         });
 
         //初次加载
-        viewModel.refresh();
+        viewModel.refresh(mSeasonType);
     }
 }

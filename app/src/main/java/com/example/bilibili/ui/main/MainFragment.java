@@ -90,10 +90,12 @@ public class MainFragment extends Fragment {
                 return new RecommendFragment();
             }
             else if(position == 2) {
-                return new BangumiFragment();
+                return BangumiFragment.newInstance(1);//追番
+            } else if (position == 3) {
+                return BangumiFragment.newInstance(2); //影视
             }
 
-            return PlaceholderFragment.newInstance(mTitles[position]);
+            return PlaceholderFragment.newInstance(mTitles[position]);//专栏
         }
 
         @Override

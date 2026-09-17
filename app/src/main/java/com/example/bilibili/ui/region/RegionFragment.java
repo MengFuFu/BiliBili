@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,6 +85,15 @@ public class RegionFragment extends Fragment {
         recyclerView.addItemDecoration(new RegionSpacingItemDecoration(spacing, partitions.size()));
 
         mAdapter = new RegionAdapter(partitions, new ArrayList<RecommendItem>());
+
+        //点分去入口时，切换到对应分区
+        mAdapter.setOnPartitionClickListener(new RegionAdapter.OnPartitionClickListener() {
+            @Override
+            public void onPartitionClick(RegionItem item) {
+                viewModel.refresh(item.getRid());
+            }
+        });
+
         recyclerView.setAdapter(mAdapter);
 
         //观察视频列表，变化时刷新
@@ -100,18 +110,28 @@ public class RegionFragment extends Fragment {
                 refreshLayout.setRefreshing(aBoolean);
             }
         });
+        //观察错误状态
+        viewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请假查网络设置", Toast.LENGTH_SHORT).show();
+                    viewModel.consumeError(); //提示完消费错误
+                }
+            }
+        });
 
         // 下拉刷新
         refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                viewModel.refresh();
+                viewModel.refresh(partitions.get(0).getRid());
             }
         });
 
         //初次刷新
-        viewModel.refresh();
+        viewModel.refresh(partitions.get(0).getRid());
     }
 
     // 网格间距：分区入口整行留边距，视频卡片左右对称

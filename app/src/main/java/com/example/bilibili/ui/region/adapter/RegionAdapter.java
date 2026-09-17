@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -28,12 +29,24 @@ public class RegionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_PARTITION = 0; //分区入口
     private static final int TYPE_BODY = 1; //视频卡片
 
+    //分区入口点击回调
+    public interface OnPartitionClickListener {
+        void onPartitionClick(RegionItem item);
+    }
+
     private final List<RegionItem> mPartitions;
     private final List<RecommendItem> mVideos;
+
+    private int mSelectedIndex = 0; //当前选中的分区下标
+    private OnPartitionClickListener mListener;
 
     public RegionAdapter(List<RegionItem> mPartitions, List<RecommendItem> mVideos) {
         this.mPartitions = mPartitions;
         this.mVideos = mVideos;
+    }
+
+    public void setOnPartitionClickListener(OnPartitionClickListener listener) {
+        mListener = listener;
     }
 
     @Override
@@ -78,6 +91,27 @@ public class RegionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private void bindPartition(PartitionViewHolder holder, RegionItem item) {
         holder.ivIcon.setImageResource(item.getIcon());
         holder.tvName.setText(item.getName());
+
+        //选中项标题用主题粉色高亮，未选中用正常文字色
+        boolean selected = holder.getAdapterPosition() == mSelectedIndex;
+        int textColor = ContextCompat.getColor(holder.itemView.getContext(), selected ? R.color.colorPrimary : R.color.text_main);
+        holder.tvName.setTextColor(textColor);
+
+        //点击整个入口切换分区
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int pos = holder.getAdapterPosition();
+                if(pos == mSelectedIndex) {
+                    return; //已经被选中的
+                }
+                mSelectedIndex = pos;
+                notifyDataSetChanged(); //刷新高亮
+                if(mListener != null) {
+                    mListener.onPartitionClick(item);
+                }
+            }
+        });
     }
 
     private void bindBody(BodyViewHolder holder, RecommendItem item) {
