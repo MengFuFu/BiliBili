@@ -1,15 +1,13 @@
-package com.example.bilibili.ui.dynamic;
+package com.example.bilibili.ui.column;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,62 +16,51 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bilibili.R;
-import com.example.bilibili.model.bean.RecommendItem;
-import com.example.bilibili.ui.dynamic.adapter.DynamicAdapter;
+import com.example.bilibili.model.bean.ArticleItem;
+import com.example.bilibili.ui.column.adapter.ColumnAdapter;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 动态页
+ * 首页 - 专栏页
  */
-public class DynamicFragment extends Fragment {
+public class ColumnFragment extends Fragment {
 
-    private DynamicAdapter mAdapter;
+    private ColumnAdapter mAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_dynamic, container, false);
+        return inflater.inflate(R.layout.fragment_column, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 工具栏标题设为「动态」
-        TextView tvTitle = view.findViewById(R.id.tv_title);
-        tvTitle.setText(R.string.section_dynamic);
-
-        // 三横线打开抽屉
-        view.findViewById(R.id.ll_top_menu_nav).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DrawerLayout drawer = requireActivity().findViewById(R.id.main_drawer_layout);
-                if (drawer != null) {
-                    drawer.openDrawer(GravityCompat.START);
-                }
-            }
-        });
-
         RecyclerView recyclerView = view.findViewById(R.id.rv);
         SwipeRefreshLayout refreshLayout = view.findViewById(R.id.layout_refresh);
 
-        DynamicViewModel viewModel = new ViewModelProvider(this).get(DynamicViewModel.class);
+        ColumnViewModel viewModel = new ViewModelProvider(this).get(ColumnViewModel.class);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new DynamicAdapter(new ArrayList<RecommendItem>());
+
+        List<ArticleItem> items = ArticleItem.createMockData();
+        mAdapter = new ColumnAdapter(new ArrayList<ArticleItem>());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mAdapter);
 
-        // 观察动态列表
-        viewModel.getItems().observe(getViewLifecycleOwner(), new Observer<List<RecommendItem>>() {
+        //观察文章列表
+        viewModel.getItems().observe(getViewLifecycleOwner(), new Observer<List<ArticleItem>>() {
             @Override
-            public void onChanged(List<RecommendItem> items) {
+            public void onChanged(List<ArticleItem> items) {
                 mAdapter.resetItems(items);
             }
         });
 
-        // 观察刷新状态
+        //观察刷新状态
         viewModel.getRefreshing().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -81,8 +68,19 @@ public class DynamicFragment extends Fragment {
             }
         });
 
-        // 下拉刷新
-        refreshLayout.setColorSchemeResources(R.color.theme_color_primary);
+        //观察错误状态
+        viewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请检查网络后再试", Toast.LENGTH_SHORT).show();
+                    viewModel.consumeError();
+                }
+            }
+        });
+
+        //下拉刷新
+        refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -90,7 +88,7 @@ public class DynamicFragment extends Fragment {
             }
         });
 
-        // 初次加载
+        //初次加载
         viewModel.refresh();
     }
 }

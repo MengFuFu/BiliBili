@@ -45,6 +45,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return mItems.size();
     }
 
+    // 刷新消息列表（配合 LiveData 使用）
+    public void resetItems(List<MessageItem> items) {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
+    }
+
     static class MessageViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivIcon;

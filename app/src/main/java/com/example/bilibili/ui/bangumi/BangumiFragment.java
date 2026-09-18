@@ -69,7 +69,7 @@ public class BangumiFragment extends Fragment {
 
         //单列列表
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new BangumiAdapter(banners, new ArrayList<BangumiItem>());
+        mAdapter = new BangumiAdapter(banners, new ArrayList<BangumiItem>(), mSeasonType);
         recyclerView.setAdapter(mAdapter);
 
         //观察番剧列表数据

@@ -25,4 +25,10 @@ public interface BiliApiService {
     //分区排行榜：rid是分区id，day是榜单天数
     @GET("x/web-interface/ranking/region")
     Call<RegionRankingResponse> getRegionRanking(@Query("rid") int rid, @Query("day") int day);
+
+    //专栏推荐文章列表：cid = 0表示全部
+    @GET("x/article/recommends")
+    Call<ArticleResponse> getArticles(@Query("cid") int cid,
+                                      @Query("pn") int pn,
+                                      @Query("ps") int ps);
 }

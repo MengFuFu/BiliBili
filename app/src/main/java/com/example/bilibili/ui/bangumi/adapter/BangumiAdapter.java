@@ -37,10 +37,13 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final List<Banner> mBanners;
     private final List<BangumiItem> mItems;
+    private final int mSeasonType; //1=番剧，2=影视
 
-    public BangumiAdapter(List<Banner> mBanners, List<BangumiItem> mItems) {
+
+    public BangumiAdapter(List<Banner> mBanners, List<BangumiItem> mItems, int mSeasonType) {
         this.mBanners = mBanners;
         this.mItems = mItems;
+        this.mSeasonType = mSeasonType;
     }
 
     @Override
@@ -62,6 +65,8 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if(viewType == TYPE_BANNER) {
             return new BannerViewHolder(inflater.inflate(R.layout.item_live_banner, parent, false));
         } else if (viewType == TYPE_ENTRY) {
+            //影视用影视入口，番剧用番剧入口
+            int entryLayout = mSeasonType == 2 ? R.layout.item_bangumi_entry_movie : R.layout.item_bangumi_entry;
             return new EntryViewHolder(inflater.inflate(R.layout.item_bangumi_entry, parent, false));
         }
         return new BangumiViewHolder(inflater.inflate(R.layout.item_bangumi, parent, false));
@@ -107,16 +112,18 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         .placeholder(R.drawable.bili_default_image_tv)
                                 .into(holder.ivCover);
 
-        //追番按钮
+        // 影视显示"想看"，番剧显示"追番"
+        final String followText = mSeasonType == 2 ? "想看" : "追番";
+        final String followedText = mSeasonType == 2 ? "已想看" : "已追番";
+        holder.btnFollow.setText(followText);
         holder.btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TextView btn = (TextView) v;
-                if("追番".contentEquals(btn.getText())) {
-                    btn.setText("已追番");
-                }
-                else {
-                    btn.setText("追番");
+                if (followText.contentEquals(btn.getText())) {
+                    btn.setText(followedText);
+                } else {
+                    btn.setText(followText);
                 }
             }
         });

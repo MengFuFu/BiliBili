@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.bilibili.R;
 import com.example.bilibili.ui.bangumi.BangumiFragment;
+import com.example.bilibili.ui.column.ColumnFragment;
 import com.example.bilibili.ui.live.LiveFragment;
 import com.example.bilibili.ui.recommend.RecommendFragment;
 import com.example.bilibili.widget.bottombar.PlaceholderFragment;
@@ -93,6 +94,8 @@ public class MainFragment extends Fragment {
                 return BangumiFragment.newInstance(1);//追番
             } else if (position == 3) {
                 return BangumiFragment.newInstance(2); //影视
+            } else if (position == 4) {
+                return new ColumnFragment(); // 专栏
             }
 
             return PlaceholderFragment.newInstance(mTitles[position]);//专栏

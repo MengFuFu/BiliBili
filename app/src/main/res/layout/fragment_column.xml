@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 专栏页：下拉刷新 + 文章列表 -->
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/layout_refresh"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_main"/>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

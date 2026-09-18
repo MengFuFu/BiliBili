@@ -62,6 +62,13 @@ public class DynamicAdapter extends RecyclerView.Adapter<DynamicAdapter.DynamicV
         return mItems.size();
     }
 
+    // 刷新动态列表（配合 LiveData 使用）
+    public void resetItems(List<RecommendItem> items) {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
+    }
+
     static class DynamicViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivAvatar;
