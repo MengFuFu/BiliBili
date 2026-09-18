@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.ArticleItem;
+import com.example.bilibili.ui.article.ArticleDetailActivity;
 
 import java.util.List;
 
@@ -49,6 +50,14 @@ public class ColumnAdapter extends RecyclerView.Adapter<ColumnAdapter.ArticleVie
                 .load(item.getCover())
                 .placeholder(R.drawable.bili_default_image_tv)
                 .into(holder.ivCover);
+
+        //点击整张卡片，打开文章详细
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArticleDetailActivity.startActivity(v.getContext(), item.getUrl(), item.getTitle());
+            }
+        });
     }
 
     @Override

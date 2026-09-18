@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -17,20 +20,19 @@ import com.example.bilibili.R;
 import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.LiveRoom;
 import com.example.bilibili.model.bean.SectionHeader;
-import com.example.bilibili.ui.live.adapter.BannerAdapter;
 import com.example.bilibili.ui.live.adapter.LiveAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 直播列表页
- * 两列网格展示直播房间卡片，支持下拉刷新
  */
 public class LiveFragment extends Fragment {
 
-    private SwipeRefreshLayout mRefreshLayout;
+    // Banner + 分区标题 + 房间 的混合列表；装饰器和 Adapter 共用同一个对象
+    private final List<Object> mItems = new ArrayList<>();
+    private LiveAdapter mAdapter;
 
     @Nullable
     @Override
@@ -43,68 +45,76 @@ public class LiveFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         RecyclerView recyclerView = view.findViewById(R.id.rv);
-        mRefreshLayout = view.findViewById(R.id.layout_refresh);
+        SwipeRefreshLayout refreshLayout = view.findViewById(R.id.layout_refresh);
 
-        //1. 生成混合数据：Banner + 分区标题 + 房间
+        LiveViewModel viewModel = new ViewModelProvider(this).get(LiveViewModel.class);
+
+        // Banner 暂时保留假数据
         List<Banner> banners = Banner.createMockData();
-        final List<Object> items = buildItems();
 
-        //2. 两列网格
+        // 两列网格：Banner 和分区标题占满两列，房间卡片各占一列
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                // Banner 和分区标题占满两列；房间卡片各占一列
                 if (position == 0) {
-                    return 2;
+                    return 2; // Banner
                 }
-                return items.get(position - 1) instanceof SectionHeader ? 2 : 1;
+                return mItems.get(position - 1) instanceof SectionHeader ? 2 : 1;
             }
         });
         recyclerView.setLayoutManager(layoutManager);
 
-        //3. 间距（把 items 传给装饰器，让它知道哪些是整行）
         int spacing = getResources().getDimensionPixelSize(R.dimen.margin_small);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing, items));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing, mItems));
 
-        //4. 设置adapter
-        LiveAdapter adapter = new LiveAdapter(banners, items);
-        recyclerView.setAdapter(adapter);
+        mAdapter = new LiveAdapter(banners, mItems);
+        recyclerView.setAdapter(mAdapter);
 
-        //下拉刷新
-        mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        // 观察房间列表：重建混合列表
+        viewModel.getRooms().observe(getViewLifecycleOwner(), new Observer<List<LiveRoom>>() {
             @Override
-            public void onRefresh() {
-                mRefreshLayout.setRefreshing(false);
+            public void onChanged(List<LiveRoom> rooms) {
+                mItems.clear();
+                mItems.add(new SectionHeader("推荐"));
+                mItems.addAll(rooms);
+                mAdapter.notifyDataSetChanged();
             }
         });
+
+        // 观察刷新状态
+        viewModel.getRefreshing().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                refreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
+        // 观察错误状态
+        viewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请检查网络后重试", Toast.LENGTH_SHORT).show();
+                    viewModel.consumeError();
+                }
+            }
+        });
+
+        // 下拉刷新
+        refreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                viewModel.refresh();
+            }
+        });
+
+        // 初次加载
+        viewModel.refresh();
     }
 
-    // 生成“分区标题 + 房间”混合列表
-    private List<Object> buildItems() {
-        List<LiveRoom> rooms = LiveRoom.createMockData();
-        List<Object> items = new ArrayList<>();
-
-        items.add(new SectionHeader("推荐"));
-        addRooms(items, rooms, 0, 4);
-
-        items.add(new SectionHeader("游戏"));
-        addRooms(items, rooms, 4, 8);
-
-        items.add(new SectionHeader("娱乐"));
-        addRooms(items, rooms, 8, 12);
-
-        return items;
-    }
-
-    private void addRooms(List<Object> items, List<LiveRoom> rooms, int from, int to) {
-        for (int i = from; i < to && i < rooms.size(); i++) {
-            items.add(rooms.get(i));
-        }
-    }
-
-    //网格间距处理
+    // 网格间距处理
     static class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
         private final int spacing;
@@ -127,7 +137,6 @@ public class LiveFragment extends Fragment {
             }
 
             if (fullSpan) {
-                // 整行条目：左右统一间距，底部留间距，Banner 顶部也留一点
                 outRect.left = spacing;
                 outRect.right = spacing;
                 outRect.top = position == 0 ? spacing : 0;
@@ -135,7 +144,6 @@ public class LiveFragment extends Fragment {
                 return;
             }
 
-            // 房间卡片：列号 = 前面出现过多少个房间，再对 2 取模
             int column = countRoomsBefore(position) % 2;
             outRect.left = spacing - column * spacing / 2;
             outRect.right = (column + 1) * spacing / 2;

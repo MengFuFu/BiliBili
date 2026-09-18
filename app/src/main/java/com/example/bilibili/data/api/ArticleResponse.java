@@ -15,6 +15,7 @@ public class ArticleResponse {
         public String title; //标题
         public String summary; //摘要
         public String banner_url; //大图
+        public String view_url; //文章网页地址
         public Author author; //作者
         public Stats stats; //统计
         public List<String> image_urls; //配图列表

@@ -22,4 +22,8 @@ public interface FollowDao {
     //按番剧名查询是否已追番
     @Query("SELECT * FROM follow_bangumi WHERE title = :title")
     FollowEntity findByTitle(String title);
+
+    // 查所有追番记录
+    @Query("SELECT * FROM follow_bangumi")
+    java.util.List<FollowEntity> getAll();
 }

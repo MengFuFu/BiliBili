@@ -16,6 +16,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.model.bean.LiveRoom;
@@ -99,13 +100,18 @@ public class LiveAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     //填充房间卡片
     private void bindRoom(LiveViewHolder holder, LiveRoom room) {
-        //填充数据至卡片内
         holder.tvUserName.setText(room.getUserName());
         holder.tvTitle.setText(room.getTitle());
         holder.tvAreaName.setText(room.getAreaName());
-        holder.tvOnline.setText(String.valueOf(room.getOnline()));
+        holder.tvOnline.setText(formatOnline(room.getOnline()));
 
-        //点击整张卡片，跳转到直播页
+        // 用 Glide 加载真实封面
+        Glide.with(holder.ivCover.getContext())
+                .load(room.getCoverUrl())
+                .placeholder(R.drawable.bili_default_image_tv)
+                .centerCrop()
+                .into(holder.ivCover);
+
         holder.cvContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,6 +123,14 @@ public class LiveAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 );
             }
         });
+    }
+
+    // 在线人数格式化：超过 1 万显示成「x.x万」
+    private String formatOnline(int online) {
+        if (online >= 10000) {
+            return String.format("%.1f万", online / 10000.0);
+        }
+        return String.valueOf(online);
     }
 
     @Override

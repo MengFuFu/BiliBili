@@ -32,12 +32,12 @@ public class ColumnRepository {
         mApi = ApiClient.getApi();
     }
 
-    public void loadArticles(final LoadCallback callback) {
-        mApi.getArticles(0, 1, 20).enqueue(new Callback<ArticleResponse>() {
+    public void loadArticles(int page, final LoadCallback callback) {
+        mApi.getArticles(0, page, 20).enqueue(new Callback<ArticleResponse>() {
             @Override
             public void onResponse(Call<ArticleResponse> call, Response<ArticleResponse> response) {
                 ArticleResponse body = response.body();
-                if(body == null || body.code != 0) {
+                if (body == null || body.code != 0) {
                     Log.e(TAG, "biz error, code=" + (body != null ? body.code : "null"));
                     callback.onError();
                     return;
@@ -67,6 +67,7 @@ public class ColumnRepository {
 
             ArticleItem item = new ArticleItem(title, summary, author, view);
             item.setCover(pickCover(article));
+            item.setUrl(article.view_url);
             items.add(item);
         }
 

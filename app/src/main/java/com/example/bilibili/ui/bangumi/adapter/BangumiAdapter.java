@@ -1,6 +1,9 @@
 package com.example.bilibili.ui.bangumi.adapter;
 
+import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,13 +18,17 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.bilibili.R;
+import com.example.bilibili.data.db.AppDatabase;
+import com.example.bilibili.data.db.FollowEntity;
 import com.example.bilibili.model.bean.BangumiItem;
 import com.example.bilibili.model.bean.Banner;
 import com.example.bilibili.ui.bangumi.BangumiDetailActivity;
 import com.example.bilibili.ui.live.adapter.BannerAdapter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 番剧列表适配器
@@ -37,7 +44,10 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final List<Banner> mBanners;
     private final List<BangumiItem> mItems;
-    private final int mSeasonType; //1=番剧，2=影视
+
+    private final int mSeasonType; // 1=番剧，2=影视
+    // 已追番/已想看的标题集合，避免每条都查数据库
+    private final Set<String> mFollowedTitles = new HashSet<>();
 
 
     public BangumiAdapter(List<Banner> mBanners, List<BangumiItem> mItems, int mSeasonType) {
@@ -65,9 +75,10 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if(viewType == TYPE_BANNER) {
             return new BannerViewHolder(inflater.inflate(R.layout.item_live_banner, parent, false));
         } else if (viewType == TYPE_ENTRY) {
-            //影视用影视入口，番剧用番剧入口
-            int entryLayout = mSeasonType == 2 ? R.layout.item_bangumi_entry_movie : R.layout.item_bangumi_entry;
-            return new EntryViewHolder(inflater.inflate(R.layout.item_bangumi_entry, parent, false));
+            int entryLayout = mSeasonType == 2
+                    ? R.layout.item_bangumi_entry_movie
+                    : R.layout.item_bangumi_entry;
+            return new EntryViewHolder(inflater.inflate(entryLayout, parent, false));
         }
         return new BangumiViewHolder(inflater.inflate(R.layout.item_bangumi, parent, false));
     }
@@ -104,26 +115,71 @@ public class BangumiAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
+    // 从数据库加载已追番/已想看的标题，刷新按钮状态
+    public void reloadFollowed(final Context context) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<FollowEntity> list = AppDatabase.getInstance(context)
+                        .followDao()
+                        .getAll();
+                final Set<String> titles = new HashSet<>();
+                for (FollowEntity e : list) {
+                    titles.add(e.title);
+                }
+                // 回到主线程更新集合并刷新
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFollowedTitles.clear();
+                        mFollowedTitles.addAll(titles);
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        }).start();
+    }
+
     private void bindItem(BangumiViewHolder holder, BangumiItem item) {
-        holder.tvTitle.setText(item.getTitle());
-        holder.tvDesc.setText(item.getDesc());
-        Glide.with(holder.ivCover.getContext())
-                .load(item.getCover())
-                        .placeholder(R.drawable.bili_default_image_tv)
-                                .into(holder.ivCover);
 
         // 影视显示"想看"，番剧显示"追番"
         final String followText = mSeasonType == 2 ? "想看" : "追番";
         final String followedText = mSeasonType == 2 ? "已想看" : "已追番";
-        holder.btnFollow.setText(followText);
+
+        // 根据内存里的已追番集合设置按钮初始状态
+        boolean followed = mFollowedTitles.contains(item.getTitle());
+        holder.btnFollow.setText(followed ? followedText : followText);
+
         holder.btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView btn = (TextView) v;
+                final TextView btn = (TextView) v;
+                final String title = item.getTitle();
+
                 if (followText.contentEquals(btn.getText())) {
+                    // 追番/想看：更新 UI + 写入数据库
                     btn.setText(followedText);
+                    mFollowedTitles.add(title);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AppDatabase.getInstance(btn.getContext())
+                                    .followDao()
+                                    .insert(new FollowEntity(title));
+                        }
+                    }).start();
                 } else {
+                    // 取消追番/想看
                     btn.setText(followText);
+                    mFollowedTitles.remove(title);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AppDatabase.getInstance(btn.getContext())
+                                    .followDao()
+                                    .delete(new FollowEntity(title));
+                        }
+                    }).start();
                 }
             }
         });

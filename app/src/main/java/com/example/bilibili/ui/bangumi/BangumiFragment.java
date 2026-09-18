@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,7 +71,26 @@ public class BangumiFragment extends Fragment {
         //单列列表
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new BangumiAdapter(banners, new ArrayList<BangumiItem>(), mSeasonType);
+        // 从数据库加载已追番状态，刷新按钮
+        mAdapter.reloadFollowed(requireContext());
         recyclerView.setAdapter(mAdapter);
+
+        // 滚动监听：快到底部时加载更多
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (manager == null) {
+                    return;
+                }
+                int lastVisible = manager.findLastVisibleItemPosition();
+                int total = mAdapter.getItemCount();
+                // 还差 4 个条目到底时，开始加载下一页
+                if (lastVisible + 4 >= total) {
+                    viewModel.loadMore();
+                }
+            }
+        });
 
         //观察番剧列表数据
         viewModel.getItems().observe(getViewLifecycleOwner(), new Observer<List<BangumiItem>>() {
@@ -85,6 +105,17 @@ public class BangumiFragment extends Fragment {
             @Override
             public void onChanged(Boolean aBoolean) {
                 refreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
+        // 观察错误状态，加载失败时弹提示
+        viewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请检查网络后重试", Toast.LENGTH_SHORT).show();
+                    viewModel.consumeError();
+                }
             }
         });
 

@@ -18,7 +18,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.bilibili.R;
 import com.example.bilibili.model.bean.ArticleItem;
 import com.example.bilibili.ui.column.adapter.ColumnAdapter;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +45,26 @@ public class ColumnFragment extends Fragment {
         ColumnViewModel viewModel = new ViewModelProvider(this).get(ColumnViewModel.class);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        List<ArticleItem> items = ArticleItem.createMockData();
         mAdapter = new ColumnAdapter(new ArrayList<ArticleItem>());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mAdapter);
 
-        //观察文章列表
+        // 滚动监听：快到底部时加载更多
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (manager == null) {
+                    return;
+                }
+                int lastVisible = manager.findLastVisibleItemPosition();
+                int total = mAdapter.getItemCount();
+                if (lastVisible + 4 >= total) {
+                    viewModel.loadMore();
+                }
+            }
+        });
+
+        // 观察文章列表
         viewModel.getItems().observe(getViewLifecycleOwner(), new Observer<List<ArticleItem>>() {
             @Override
             public void onChanged(List<ArticleItem> items) {
@@ -60,7 +72,7 @@ public class ColumnFragment extends Fragment {
             }
         });
 
-        //观察刷新状态
+        // 观察刷新状态
         viewModel.getRefreshing().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -68,18 +80,18 @@ public class ColumnFragment extends Fragment {
             }
         });
 
-        //观察错误状态
+        // 观察错误状态
         viewModel.getError().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(aBoolean != null && aBoolean) {
-                    Toast.makeText(getContext(), "加载失败，请检查网络后再试", Toast.LENGTH_SHORT).show();
+                if (aBoolean != null && aBoolean) {
+                    Toast.makeText(getContext(), "加载失败，请检查网络后重试", Toast.LENGTH_SHORT).show();
                     viewModel.consumeError();
                 }
             }
         });
 
-        //下拉刷新
+        // 下拉刷新
         refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -88,7 +100,7 @@ public class ColumnFragment extends Fragment {
             }
         });
 
-        //初次加载
+        // 初次加载
         viewModel.refresh();
     }
 }

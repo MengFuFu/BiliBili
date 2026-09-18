@@ -31,4 +31,8 @@ public interface BiliApiService {
     Call<ArticleResponse> getArticles(@Query("cid") int cid,
                                       @Query("pn") int pn,
                                       @Query("ps") int ps);
+
+    // 直播推荐房间列表：域名是 api.live.bilibili.com，用完整地址覆盖 baseUrl
+    @GET("https://api.live.bilibili.com/room/v1/room/get_user_recommend")
+    Call<LiveResponse> getLiveRecommend(@Query("page") int page, @Query("page_size") int pageSize);
 }

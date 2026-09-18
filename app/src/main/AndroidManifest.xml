@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".ui.article.ArticleDetailActivity"
+            android:exported="false"/>
+        <activity
             android:name=".ui.video.VideoPlayActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize"

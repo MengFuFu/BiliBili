@@ -13,6 +13,7 @@ public class ArticleItem {
     private String author; //作者
     private String view; //浏览数
     private String cover; //封面图URL
+    private String url; //文章详细页URL
 
     public ArticleItem(String title, String summary, String author, String view) {
         this.title = title;
@@ -59,6 +60,14 @@ public class ArticleItem {
 
     public void setCover(String cover) {
         this.cover = cover;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     // 暂时先用假数据跑通界面
