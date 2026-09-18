@@ -9,11 +9,29 @@ import java.util.List;
 public class Banner {
 
     private String title; //轮播图标题
-    private int coverColor; //占位背景色
+    private String imageUrl; //图片地址
+    private String link; //点击跳转地址
 
-    public Banner(String title, int coverColor) {
+    public Banner(String title, String imageUrl, String link) {
         this.title = title;
-        this.coverColor = coverColor;
+        this.imageUrl = imageUrl;
+        this.link = link;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public String getTitle() {
@@ -24,20 +42,22 @@ public class Banner {
         this.title = title;
     }
 
-    public int getCoverColor() {
-        return coverColor;
-    }
 
-    public void setCoverColor(int coverColor) {
-        this.coverColor = coverColor;
-    }
 
     public static List<Banner> createMockData() {
         List<Banner> list = new ArrayList<>();
-        list.add(new Banner("Banner 1", 0xFFFB7299)); // 粉
-        list.add(new Banner("Banner 2", 0xFF21C1FC)); // 蓝
-        list.add(new Banner("Banner 3", 0xFFFFA726)); // 橙
-        list.add(new Banner("Banner 4", 0xFF66BB6A)); // 绿
+        list.add(new Banner("英雄联盟赛事",
+                "https://i0.hdslb.com/bfs/live-key-frame/keyframe09181830000007734200a09a73.jpg",
+                "https://www.bilibili.com/"));
+        list.add(new Banner("德云色",
+                "https://i0.hdslb.com/bfs/live/new_room_cover/258c61418fc8483e5c191ff9c4f771509de606a5.jpg",
+                "https://www.bilibili.com/"));
+        list.add(new Banner("三角洲行动",
+                "https://i0.hdslb.com/bfs/live/new_room_cover/9abe60236c7252ce473babf65b023843e7d36959.jpg",
+                "https://www.bilibili.com/"));
+        list.add(new Banner("点唱",
+                "https://i0.hdslb.com/bfs/live/new_room_cover/13c5990a893d4de8e3a5a09d70d44aab354b26e4.jpg",
+                "https://www.bilibili.com/"));
         return list;
     }
 }
